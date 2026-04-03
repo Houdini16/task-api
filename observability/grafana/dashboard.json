@@ -1,0 +1,173 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisLabel": "req/s",
+            "lineWidth": 2,
+            "fillOpacity": 15
+          },
+          "unit": "reqps"
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "title": "Taux de Requêtes (GET/POST)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "rate(http_server_requests_seconds_count{application=\"task-api\", method=\"GET\"}[1m])",
+          "legendFormat": "GET {{uri}}"
+        },
+        {
+          "expr": "rate(http_server_requests_seconds_count{application=\"task-api\", method=\"POST\"}[1m])",
+          "legendFormat": "POST {{uri}}"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisLabel": "%",
+            "lineWidth": 2,
+            "fillOpacity": 15
+          },
+          "unit": "percentunit"
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "title": "Taux de Succès / Échec",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_requests_seconds_count{application=\"task-api\", status=~\"2..\"}[1m])) / sum(rate(http_server_requests_seconds_count{application=\"task-api\"}[1m]))",
+          "legendFormat": "Succès (2xx)"
+        },
+        {
+          "expr": "sum(rate(http_server_requests_seconds_count{application=\"task-api\", status=~\"[45]..\"}[1m])) / sum(rate(http_server_requests_seconds_count{application=\"task-api\"}[1m]))",
+          "legendFormat": "Échec (4xx/5xx)"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisLabel": "seconds",
+            "lineWidth": 2,
+            "fillOpacity": 15
+          },
+          "unit": "s"
+        }
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 8 },
+      "title": "Latence P95",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{application=\"task-api\"}[5m])) by (le, uri))",
+          "legendFormat": "P95 {{uri}}"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          }
+        }
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 16 },
+      "title": "Application Status",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "up{job=\"task-api\"}",
+          "legendFormat": "task-api"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        }
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 16 },
+      "title": "JVM Memory Used",
+      "type": "gauge",
+      "targets": [
+        {
+          "expr": "jvm_memory_used_bytes{application=\"task-api\", area=\"heap\"}",
+          "legendFormat": "Heap"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        }
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 16 },
+      "title": "Total Requêtes",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "http_server_requests_seconds_count{application=\"task-api\"}",
+          "legendFormat": "{{method}} {{uri}}"
+        }
+      ]
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["devops", "task-api", "l3gl"],
+  "templating": { "list": [] },
+  "time": { "from": "now-1h", "to": "now" },
+  "title": "Task-API — Dashboard DevOps L3GL",
+  "uid": "task-api-dashboard"
+}

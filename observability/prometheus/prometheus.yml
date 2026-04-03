@@ -1,0 +1,22 @@
+# ============================================
+# Prometheus Configuration
+# ============================================
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # Scraping de Prometheus lui-même
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Scraping de l'application Task-API via l'Ingress
+  - job_name: 'task-api'
+    metrics_path: '/l3gl/actuator/prometheus'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['host.docker.internal:80']
+        labels:
+          application: 'task-api'
+          group: 'l3gl-devops'
